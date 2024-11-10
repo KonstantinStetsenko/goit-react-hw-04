@@ -1,0 +1,18 @@
+.headerSearch {
+  display: block;
+  background-color: orange;
+  width: 100%;
+  padding: 10px;
+  margin: 0;
+  position: fixed;
+  top: 0;
+}
+.inputSerch {
+  padding: 10px 2px 10px 2px;
+  border-radius: 4px;
+  width: 250px;
+  margin-right: 20px;
+}
+.buttonSearch {
+  padding: 8px 40px 8px 40px;
+}
