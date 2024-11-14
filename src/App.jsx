@@ -1,66 +1,120 @@
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+
 import "./App.css";
 import SearchBar from "./components/SearchBar/SearchBar";
-import axios from "axios";
 import ImageGallery from "./components/ImageGallery/ImageGallery";
 import ErrorMessager from "./components/ErrorMessage/ErrorMessage";
 import RotatingLinesLoader from "./components/Loader/Loader";
-import { fetchGallery } from "./gallery-api";
+import { fetchGallery, per_page } from "./gallery-api";
+import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
+import Modal from "react-modal";
+import ImageModal from "./components/ImageModal/ImageModal";
+import toast from "react-hot-toast";
+import { BsFillEmojiFrownFill } from "react-icons/bs";
 
-// const API_KEY = "raLFzrHm_qCJkpZwZMAVi26Er4KW4PemxmIVKtzBpLY";
-// const BASE_URL = "https://api.unsplash.com";
-// const ENDPOINT = "/photos/random/";
+// Модальное окно
+Modal.setAppElement("#root");
 
 function App() {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState(null);
+  const [totalPage, setTotalPages] = useState(0);
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [totalItems, setTotalItems] = useState(0);
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const [largeImageUrl, setLargeImageUrl] = useState(null);
+  const [altDescription, setAltDescription] = useState("");
 
-  
-  const handleSearch = async (topic) => {
-    try {
-      setPhotos([]);
-      setError(false);
-      setLoading(true);
-      const data = await fetchGallery(topic);
-       setPhotos(data);
-    } catch (error) {
-      setStatus(error.response ? error.response.status : "No response");
-      setError(true);
-    } finally {
-      setLoading(false);
+  const openModal = (imageUrl, description) => {
+    setLargeImageUrl(imageUrl); // Устанавливаем URL большого изображения
+    setAltDescription(description);
+    setIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setLargeImageUrl(null); // Сбрасываем URL большого изображения
+  };
+
+  const handleClick = () => setPage((prev) => prev + 1);
+
+  const handleSearch = (search) => {
+    setSearchTerm(search);
+    setPage(1);
+  };
+
+  useEffect(() => {
+    if (totalPage === page) {
+      toast.success("Изображений больше нет");
     }
-  }
+    if (!loading && !error && photos.length === 0 && searchTerm) {
+      toast.error("Извините, по вашему запросу ничего не найдено.");
+    }
+  }, [loading, error, photos, searchTerm]);
 
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        setLoading(true);
+        const { data, totalItems: fetchedTotalItems } = await fetchGallery(
+          searchTerm,
+          page
+        );
 
-  // useEffect(() => {
-  // async function fetchGalleryPhotos() {
-  //     try {
-  //       setLoading(true);
-  //       const data = await fetchGallery("car");
-  //       console.log("Данный с функции",data)
-  //       console.log("Полученные изображения:", data);
-  //       setPhotos(data);
-  //       setStatus(error.response.status);
-  //     } catch (error) {
-  //       setError(true);
-  //       setStatus(error.response ? error.response.status : "No response");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
+        setPhotos((prevPhotos) =>
+          page === 1 ? data : [...prevPhotos, ...data]
+        );
+        setTotalItems(fetchedTotalItems);
 
-  //   fetchGalleryPhotos() ; // Вызов функции fetchArticles при монтировании компонента
-  // }, []);
+        setTotalPages(Math.ceil(fetchedTotalItems / per_page));
+        setError(false);
+        console.log(`Общее количество элементов: ${fetchedTotalItems}`);
+      } catch (error) {
+        console.error("Ошибка запроса:", error);
+        setStatus(error.response ? error.response.status : "No response");
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (searchTerm) fetchPhotos();
+  }, [page, searchTerm]);
 
   return (
     <>
-      <SearchBar onSearch={ handleSearch} />
-      {error && <ErrorMessager status={status} error={error} />}
-      {loading ? <RotatingLinesLoader /> : <ImageGallery photos={photos} />}
+      <SearchBar onSearch={handleSearch} />
+      {error && <ErrorMessager status={status} error={error} />}{" "}
+      {loading ? (
+        <RotatingLinesLoader />
+      ) : !error && photos.length > 0 ? (
+        <ImageGallery
+          photos={photos}
+          openModal={(largeImageUrl, altDescription) =>
+            openModal(largeImageUrl, altDescription)
+          }
+        />
+      ) : (
+        !error &&
+        searchTerm && (
+          <p className="messege">
+            <span className="text">Извините, по вашему запросу ничего не найдено.</span>
+            <BsFillEmojiFrownFill size={60} />
+          </p>
+        )
+      )}
+      <ImageModal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Image Modal"
+        largeImageUrl={largeImageUrl} // Передаем изображение в модальное окно
+        large={largeImageUrl}
+        alt_description={altDescription}
+      />
+      {page < totalPage && <LoadMoreBtn onClick={handleClick} />}
     </>
   );
 }

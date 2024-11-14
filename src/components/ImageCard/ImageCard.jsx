@@ -1,9 +1,11 @@
-import { ArrPhoto } from "../ImageGallery/ImageGallery";
+import ImageGallery from "../ImageGallery/ImageGallery";
 
-export default function ImageCard({ small, alt_description, regular }) {
+// ImageCard.js
+export default function ImageCard({ small, alt_description, large, openModal }) {
   return (
-    <div>
+    <div onClick={() => openModal(large)}> {/* Передаем URL большого изображения */}
       <img src={small} alt={alt_description} />
+    
     </div>
   );
 }
