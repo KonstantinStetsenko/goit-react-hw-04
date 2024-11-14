@@ -41,19 +41,25 @@ function App() {
 
   const handleClick = () => setPage((prev) => prev + 1);
 
-  const handleSearch = (search) => {
+  function handleSearch(search) {
+    if (!search.trim()) {
+      setSearchTerm("");
+      setPage(1);
+      setPhotos([]);
+      setTotalItems(0);
+      toast.error("Поле поиска не должно быть пустым");
+      return;
+    }
     setSearchTerm(search);
     setPage(1);
-  };
+  }
 
   useEffect(() => {
     if (totalPage === page) {
       toast.success("Изображений больше нет");
     }
-    if (!loading && !error && photos.length === 0 && searchTerm) {
-      toast.error("Извините, по вашему запросу ничего не найдено.");
-    }
-  }, [loading, error, photos, searchTerm]);
+    
+  }, [page,totalPage]);
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -101,7 +107,9 @@ function App() {
         !error &&
         searchTerm && (
           <p className="messege">
-            <span className="text">Извините, по вашему запросу ничего не найдено.</span>
+            <span className="text">
+              Извините, по вашему запросу ничего не найдено.
+            </span>
             <BsFillEmojiFrownFill size={60} />
           </p>
         )
