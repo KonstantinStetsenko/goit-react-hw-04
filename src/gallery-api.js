@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_KEY = "raLFzrHm_qCJkpZwZMAVi26Er4KW4PemxmIVKtzBpLY";
 const BASE_URL = "https://api.unsplash.com";
-const ENDPOINT = "/search/photos/";
+const ENDPOINT = "/search/photos1/";
 
 export const search = "dog";
 export const page = 1;
@@ -23,8 +23,6 @@ export async function fetchGallery(search, page) {
   // Извлечение общего количества элементов из данных ответа
   const totalItems = response.data.total_pages; // Поле total содержит общее количество элементов
   const itemsPerPage = response.data.results; // Количество элементов на странице
-
-  console.log("Общее количество элементов:", totalItems, itemsPerPage);
 
   return {
     data: response.data.results,

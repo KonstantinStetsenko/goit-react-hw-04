@@ -77,9 +77,9 @@ function App() {
 
         setTotalPages(Math.ceil(fetchedTotalItems / per_page));
         setError(false);
-        console.log(`Общее количество элементов: ${fetchedTotalItems}`);
+       
       } catch (error) {
-        console.error("Ошибка запроса:", error);
+        
         setStatus(error.response ? error.response.status : "No response");
         setError(true);
       } finally {
