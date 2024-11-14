@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_KEY = "raLFzrHm_qCJkpZwZMAVi26Er4KW4PemxmIVKtzBpLY";
 const BASE_URL = "https://api.unsplash.com";
-const ENDPOINT = "/search/photos1/";
+const ENDPOINT = "/search/photos/";
 
 export const search = "dog";
 export const page = 1;
