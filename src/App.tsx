@@ -1,47 +1,47 @@
 import { useEffect, useState } from "react";
-
-import "./App.css";
-import SearchBar from "./components/SearchBar/SearchBar";
-import ImageGallery from "./components/ImageGallery/ImageGallery";
-import ErrorMessager from "./components/ErrorMessage/ErrorMessage";
-import RotatingLinesLoader from "./components/Loader/Loader";
-import { fetchGallery, per_page } from "./gallery-api";
-import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
-import Modal from "react-modal";
-import ImageModal from "./components/ImageModal/ImageModal";
 import toast from "react-hot-toast";
 import { BsFillEmojiFrownFill } from "react-icons/bs";
+import Modal from "react-modal";
+import "./App.css";
+import ErrorMessager from "./components/ErrorMessage/ErrorMessage";
+import ImageGallery from "./components/ImageGallery/ImageGallery";
+import ImageModal from "./components/ImageModal/ImageModal";
+import RotatingLinesLoader from "./components/Loader/Loader";
+import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
+import SearchBar from "./components/SearchBar/SearchBar";
+import { fetchGallery, per_page, Photo } from "./gallery-api";
 
-// Модальное окно
 Modal.setAppElement("#root");
 
-function App() {
-  const [photos, setPhotos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [status, setStatus] = useState(null);
-  const [totalPage, setTotalPages] = useState(0);
-  const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [totalItems, setTotalItems] = useState(0);
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [largeImageUrl, setLargeImageUrl] = useState(null);
-  const [altDescription, setAltDescription] = useState("");
 
-  const openModal = (imageUrl, description) => {
-    setLargeImageUrl(imageUrl); // Устанавливаем URL большого изображения
+
+function App() {
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [status, setStatus] = useState<number | null>(null);
+  const [totalPage, setTotalPages] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [modalIsOpen, setIsOpen] = useState<boolean>(false);
+  const [largeImageUrl, setLargeImageUrl] = useState<string | null>(null);
+  const [altDescription, setAltDescription] = useState<string>("");
+
+  const openModal = (imageUrl: string, description: string): void => {
+    setLargeImageUrl(imageUrl);
     setAltDescription(description);
     setIsOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = (): void => {
     setIsOpen(false);
-    setLargeImageUrl(null); // Сбрасываем URL большого изображения
+    setLargeImageUrl(null);
   };
 
-  const handleClick = () => setPage((prev) => prev + 1);
+  const handleClick = (): void => setPage((prev) => prev + 1);
 
-  function handleSearch(search) {
+  const handleSearch = (search: string): void => {
     if (!search.trim()) {
       setSearchTerm("");
       setPage(1);
@@ -52,17 +52,16 @@ function App() {
     }
     setSearchTerm(search);
     setPage(1);
-  }
+  };
 
   useEffect(() => {
     if (totalPage === page) {
       toast.success("Изображений больше нет");
     }
-    
-  }, [page,totalPage]);
+  }, [page, totalPage]);
 
   useEffect(() => {
-    const fetchPhotos = async () => {
+    const fetchPhotos = async (): Promise<void> => {
       try {
         setLoading(true);
         const { data, totalItems: fetchedTotalItems } = await fetchGallery(
@@ -70,17 +69,20 @@ function App() {
           page
         );
 
+        const extendedData: Photo[] = data.map((photo: Photo) => ({
+          ...photo,
+          likes: photo.likes || 0, 
+          user: photo.user || { name: 'Unknown' }, 
+        }));
+
         setPhotos((prevPhotos) =>
-          page === 1 ? data : [...prevPhotos, ...data]
+          page === 1 ? extendedData : [...prevPhotos, ...extendedData]
         );
         setTotalItems(fetchedTotalItems);
-
         setTotalPages(Math.ceil(fetchedTotalItems / per_page));
         setError(false);
-       
-      } catch (error) {
-        
-        setStatus(error.response ? error.response.status : "No response");
+      } catch (error: any) {
+        setStatus(error.response ? error.response.status : null);
         setError(true);
       } finally {
         setLoading(false);
@@ -93,13 +95,13 @@ function App() {
   return (
     <>
       <SearchBar onSearch={handleSearch} />
-      {error && <ErrorMessager status={status} error={error} />}{" "}
+      {error && <ErrorMessager status={status} error={error} />}
       {loading ? (
         <RotatingLinesLoader />
       ) : !error && photos.length > 0 ? (
         <ImageGallery
           photos={photos}
-          openModal={(largeImageUrl, altDescription) =>
+          openModal={(largeImageUrl: string, altDescription: string) =>
             openModal(largeImageUrl, altDescription)
           }
         />
@@ -118,7 +120,6 @@ function App() {
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
         contentLabel="Image Modal"
-        largeImageUrl={largeImageUrl} // Передаем изображение в модальное окно
         large={largeImageUrl}
         alt_description={altDescription}
       />

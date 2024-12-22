@@ -1,6 +1,6 @@
-// ImageModal.js
+// ImageModal.tsx
 import Modal from "react-modal";
-import css from "./ImageModal.module.css"; // Убедитесь, что имя файла правильное
+import css from "./ImageModal.module.css";
 
 const customStyles = {
   content: {
@@ -14,19 +14,28 @@ const customStyles = {
   overlay: { backgroundColor: "rgba(0, 0, 0, 0.9)" },
 };
 
-export default function ImageModal({
-  photos,
+interface ImageModalProps {
+  isOpen: boolean;
+  onRequestClose: () => void;
+  contentLabel: string;
+  large: string | null;
+  alt_description: string;
+}
+
+const ImageModal: React.FC<ImageModalProps> = ({
   isOpen,
   onRequestClose,
+  contentLabel,
   large,
   alt_description,
-}) {
+}) => {
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       className={css.Modal}
       style={customStyles}
+      aria-labelledby={contentLabel}
     >
       {large && (
         <img
@@ -36,13 +45,14 @@ export default function ImageModal({
           style={{ width: "100%", height: "auto" }}
         />
       )}
-      <div className={css.conteinerButtDesc}>
-        {" "}
+      <div className={css.containerButtDesc}>
         <button onClick={onRequestClose} className={css.closeButton}>
           Close
-        </button>{" "}
+        </button>
         <h3 className={css.titleDesc}>{alt_description}</h3>
       </div>
     </Modal>
   );
-}
+};
+
+export default ImageModal;

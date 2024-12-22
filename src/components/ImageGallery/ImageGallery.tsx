@@ -1,12 +1,28 @@
-import axios from "axios";
-import { useEffect } from "react";
 import ImageCard from "../ImageCard/ImageCard";
-import { useState, useId } from "react";
 import css from "./ImageGallery.module.css";
 
-export let ArrPhoto = [];
 
-export default function ImageGallery({ photos, openModal }) {
+interface Photo {
+  id: string;
+  urls: {
+    small: string;
+    regular: string;
+  };
+  alt_description: string;
+  likes: number;
+  user: {
+    name: string;
+  };
+}
+
+interface ImageGalleryProps {
+  photos: Photo[]; 
+  openModal: (largeImageUrl: string, altDescription: string) => void; 
+}
+
+export let ArrPhoto: Photo[] = [];
+
+const ImageGallery: React.FC<ImageGalleryProps> = ({ photos, openModal }) => {
   return (
     <ul className={css.containerGallery}>
       {photos.map((photo) => (
@@ -14,14 +30,15 @@ export default function ImageGallery({ photos, openModal }) {
           <ImageCard 
             small={photo.urls.small}
             alt_description={photo.alt_description}
-            large={photo.urls.regular} // URL большого изображения
+            large={photo.urls.regular} 
             openModal={openModal}
           />
           <div className={css.text}><p className={css.textName}>likes: </p> {photo.likes}</div>
           <div className={css.text}><p className={css.textName}>Author: </p> {photo.user.name}</div>
-         
         </li>
       ))}
     </ul>
   );
 }
+
+export default ImageGallery;
