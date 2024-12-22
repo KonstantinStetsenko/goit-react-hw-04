@@ -4,7 +4,7 @@ import css from "./ErrorMessager.module.css";
 
 interface ErrorMessagerProps {
   error: boolean;
-  status: string | number | null; 
+  status: string | number | null;
 }
 
 const ErrorMessager: React.FC<ErrorMessagerProps> = ({ error, status }) => {

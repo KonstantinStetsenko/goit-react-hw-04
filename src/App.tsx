@@ -13,8 +13,6 @@ import { fetchGallery, per_page, Photo } from "./gallery-api";
 
 Modal.setAppElement("#root");
 
-
-
 function App() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -71,8 +69,8 @@ function App() {
 
         const extendedData: Photo[] = data.map((photo: Photo) => ({
           ...photo,
-          likes: photo.likes || 0, 
-          user: photo.user || { name: 'Unknown' }, 
+          likes: photo.likes || 0,
+          user: photo.user || { name: "Unknown" },
         }));
 
         setPhotos((prevPhotos) =>

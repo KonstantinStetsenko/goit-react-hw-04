@@ -1,9 +1,8 @@
 import React from "react";
 import css from "./LoadMoreBtn.module.css";
 
-
 interface LoadMoreBtnProps {
-  onClick: () => void; 
+  onClick: () => void;
 }
 
 const LoadMoreBtn: React.FC<LoadMoreBtnProps> = ({ onClick }) => {
